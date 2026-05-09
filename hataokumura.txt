@@ -1,0 +1,91 @@
+clc;
+clear;
+close all;
+
+% Parameters
+fc = 900;          % Frequency in MHz
+hb1 = 30;          % Base station antenna height (m)
+hb2 = 100;         % Modified base station height (m)
+
+hm1 = 1;           % Mobile antenna height (m)
+hm2 = 10;          % Modified mobile antenna height (m)
+
+d = 1:1:20;        % Distance in km
+
+%% ---------------- HATA MODEL ---------------- %%
+% Mobile antenna correction factor for urban area
+a_hm1 = (1.1*log10(fc)-0.7)*hm1 - (1.56*log10(fc)-0.8);
+a_hm2 = (1.1*log10(fc)-0.7)*hm2 - (1.56*log10(fc)-0.8);
+
+% Hata model path loss
+PL_hata1 = 69.55 + 26.16*log10(fc) ...
+           - 13.82*log10(hb1) ...
+           - a_hm1 ...
+           + (44.9 - 6.55*log10(hb1)).*log10(d);
+
+PL_hata2 = 69.55 + 26.16*log10(fc) ...
+           - 13.82*log10(hb2) ...
+           - a_hm2 ...
+           + (44.9 - 6.55*log10(hb2)).*log10(d);
+
+%% ---------------- OKUMURA MODEL ---------------- %%
+% Simplified Okumura model
+
+Lf = 32.45 + 20*log10(fc) + 20*log10(d); % Free space loss
+
+% Antenna gain factors
+Ghb1 = 20*log10(hb1/200);
+Ghb2 = 20*log10(hb2/200);
+
+Ghm1 = 10*log10(hm1/3);
+Ghm2 = 10*log10(hm2/3);
+
+Amu = 35;   % Median attenuation for urban area
+
+% Okumura path loss
+PL_oku1 = Lf + Amu - Ghb1 - Ghm1;
+PL_oku2 = Lf + Amu - Ghb2 - Ghm2;
+
+%% ---------------- PLOT 1 ---------------- %%
+figure;
+
+plot(d, PL_hata1,'b','LineWidth',2);
+hold on;
+
+plot(d, PL_oku1,'r','LineWidth',2);
+
+grid on;
+
+xlabel('Distance (km)');
+ylabel('Path Loss (dB)');
+title('Okumura and Hata Propagation Models');
+
+legend('Hata Model','Okumura Model');
+
+%% ---------------- PLOT 2 ---------------- %%
+figure;
+
+plot(d, PL_hata1,'b','LineWidth',2);
+hold on;
+
+plot(d, PL_hata2,'g','LineWidth',2);
+
+plot(d, PL_oku1,'r','LineWidth',2);
+
+plot(d, PL_oku2,'m','LineWidth',2);
+
+grid on;
+
+xlabel('Distance (km)');
+ylabel('Path Loss (dB)');
+title('Effect of Antenna Height Variation');
+
+legend('Hata hb=30m','Hata hb=100m', ...
+       'Okumura hb=30m','Okumura hb=100m');
+
+%% ---------------- RESULTS ---------------- %%
+disp('Observation:');
+disp('1. Path loss increases as distance increases.');
+disp('2. Increasing base station antenna height reduces path loss.');
+disp('3. Increasing mobile antenna height also reduces path loss.');
+disp('4. Hata and Okumura models show similar propagation behavior.');
