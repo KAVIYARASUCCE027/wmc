@@ -1,0 +1,92 @@
+clc;
+clear;
+close all;
+
+%% PARAMETERS
+fs = 1000;              % Sampling frequency
+t = 0:1/fs:1;           % Time vector
+
+% User binary data
+u1 = [1 0 1 1];
+u2 = [0 1 0 1];
+u3 = [1 1 0 0];
+
+%% =====================================================
+%% (a) TDMA SIMULATION
+%% =====================================================
+
+tdma = [];
+
+% Allocate separate time slots
+tdma = [u1 zeros(1,4) zeros(1,4)];
+tdma = tdma + [zeros(1,4) u2 zeros(1,4)];
+tdma = tdma + [zeros(1,8) u3];
+
+figure;
+
+subplot(3,1,1);
+stem(tdma,'LineWidth',2);
+title('TDMA Transmission');
+xlabel('Time Slots');
+ylabel('Amplitude');
+grid on;
+
+%% =====================================================
+%% (b) FDMA SIMULATION
+%% =====================================================
+
+f1 = 10;
+f2 = 20;
+f3 = 30;
+
+% Carrier signals
+c1 = sin(2*pi*f1*t);
+c2 = sin(2*pi*f2*t);
+c3 = sin(2*pi*f3*t);
+
+% Data signals
+d1 = u1(1)*c1;
+d2 = u2(1)*c2;
+d3 = u3(1)*c3;
+
+fdma = d1 + d2 + d3;
+
+subplot(3,1,2);
+plot(t,fdma,'LineWidth',1.5);
+title('FDMA Transmission');
+xlabel('Time');
+ylabel('Amplitude');
+grid on;
+
+%% =====================================================
+%% (c) CDMA SIMULATION
+%% =====================================================
+
+% Spreading codes
+code1 = [1 -1 1 -1];
+code2 = [1 1 -1 -1];
+code3 = [1 -1 -1 1];
+
+% Spread signals
+s1 = kron(u1,code1);
+s2 = kron(u2,code2);
+s3 = kron(u3,code3);
+
+cdma = s1 + s2 + s3;
+
+subplot(3,1,3);
+stem(cdma,'LineWidth',2);
+title('CDMA Transmission');
+xlabel('Chips');
+ylabel('Amplitude');
+grid on;
+
+%% =====================================================
+%% DISPLAY RESULTS
+%% =====================================================
+
+disp('Comparison of Multiple Access Techniques');
+disp('----------------------------------------');
+disp('TDMA : Users separated by Time Slots');
+disp('FDMA : Users separated by Frequency Bands');
+disp('CDMA : Users separated by Unique Codes');
