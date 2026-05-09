@@ -1,0 +1,98 @@
+clc;
+clear;
+close all;
+
+%% PARAMETERS
+
+c = 3e8;                    % Speed of light
+Pt = 30;                    % Transmit power in dBm
+
+% mmWave frequencies
+f1 = 28e9;                  % 28 GHz
+f2 = 60e9;                  % 60 GHz
+
+% Distance range
+d = 1:1:200;                % Distance in meters
+
+%% =====================================================
+%% (a) PATH LOSS CALCULATION
+%% =====================================================
+
+% Free Space Path Loss Formula
+PL1 = 20*log10(d) + 20*log10(f1) - 147.55;
+PL2 = 20*log10(d) + 20*log10(f2) - 147.55;
+
+%% RECEIVED SIGNAL STRENGTH
+Pr1 = Pt - PL1;
+Pr2 = Pt - PL2;
+
+%% =====================================================
+%% (b) PLOT RSS vs DISTANCE
+%% =====================================================
+
+figure;
+
+plot(d,Pr1,'b','LineWidth',2);
+hold on;
+
+plot(d,Pr2,'r','LineWidth',2);
+
+grid on;
+
+xlabel('Distance (m)');
+ylabel('Received Signal Strength (dBm)');
+
+title('Received Signal Strength vs Distance');
+
+legend('28 GHz','60 GHz');
+
+%% =====================================================
+%% (c) MULTIPATH FADING EFFECTS
+%% =====================================================
+
+% Rayleigh fading for NLOS
+rayleigh_fading = abs((randn(size(d)) + 1j*randn(size(d)))/sqrt(2));
+
+% Rician fading for LOS
+K = 10;
+
+rician_fading = abs( sqrt(K/(K+1)) + ...
+    sqrt(1/(K+1)) * ...
+    (randn(size(d)) + 1j*randn(size(d)))/sqrt(2) );
+
+%% Apply fading
+Pr1_rayleigh = Pr1 + 20*log10(rayleigh_fading);
+Pr1_rician   = Pr1 + 20*log10(rician_fading);
+
+%% =====================================================
+%% (d) LOS vs NLOS COMPARISON
+%% =====================================================
+
+figure;
+
+plot(d,Pr1_rician,'g','LineWidth',2);
+hold on;
+
+plot(d,Pr1_rayleigh,'m','LineWidth',1.5);
+
+grid on;
+
+xlabel('Distance (m)');
+ylabel('Received Signal Strength (dBm)');
+
+title('LOS and NLOS Channel Comparison');
+
+legend('LOS - Rician Fading', ...
+       'NLOS - Rayleigh Fading');
+
+%% =====================================================
+%% DISPLAY OBSERVATIONS
+%% =====================================================
+
+disp('5G mmWave Channel Analysis');
+disp('-----------------------------');
+
+disp('1. Path loss increases with distance.');
+disp('2. 60 GHz experiences higher loss than 28 GHz.');
+disp('3. LOS channels provide stronger received signals.');
+disp('4. NLOS channels experience severe fading effects.');
