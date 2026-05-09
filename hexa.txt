@@ -1,0 +1,86 @@
+clc;
+clear;
+close all;
+
+%% PARAMETERS
+R = 1;              % Cell radius
+N = 7;              % Frequency reuse factor
+D = sqrt(3*N)*R;    % Reuse distance
+
+% Frequency groups
+freq = {'F1','F2','F3','F4','F5','F6','F7'};
+
+% Colours for cells
+cmap = lines(7);
+
+%% HEXAGON FUNCTION
+theta = 0:pi/3:2*pi;
+
+%% CELL CENTERS FOR N=7 CLUSTER
+centers = [
+     0      0;
+     1.5*R  sqrt(3)*R/2;
+     1.5*R -sqrt(3)*R/2;
+     0     -sqrt(3)*R;
+    -1.5*R -sqrt(3)*R/2;
+    -1.5*R  sqrt(3)*R/2;
+     0      sqrt(3)*R
+];
+
+figure;
+hold on;
+axis equal;
+grid on;
+
+title('Hexagonal Cellular Layout with Frequency Reuse N = 7');
+xlabel('X-axis');
+ylabel('Y-axis');
+
+%% DRAW HEXAGONAL CELLS
+for i = 1:7
+    
+    x0 = centers(i,1);
+    y0 = centers(i,2);
+    
+    % Hexagon coordinates
+    x = x0 + R*cos(theta);
+    y = y0 + R*sin(theta);
+    
+    % Draw filled hexagon
+    fill(x,y,cmap(i,:),'FaceAlpha',0.5);
+    
+    % Cell label
+    text(x0,y0,['Cell ',num2str(i),newline,freq{i}], ...
+        'HorizontalAlignment','center', ...
+        'FontWeight','bold');
+end
+
+%% HIGHLIGHT CO-CHANNEL CELLS
+% Example: Cell 1 reused at distance D
+
+co_x = D;
+co_y = 0;
+
+% Draw co-channel cell
+x = co_x + R*cos(theta);
+y = co_y + R*sin(theta);
+
+fill(x,y,cmap(1,:),'FaceAlpha',0.8);
+
+text(co_x,co_y,'Co-channel F1', ...
+    'HorizontalAlignment','center', ...
+    'FontWeight','bold');
+
+%% DRAW REUSE DISTANCE LINE
+plot([0 co_x],[0 co_y],'k--','LineWidth',2);
+
+mid_x = (0 + co_x)/2;
+mid_y = 0;
+
+text(mid_x,mid_y,['D = ',num2str(D)], ...
+    'FontSize',12,'FontWeight','bold');
+
+%% DISPLAY RESULT
+disp(['Frequency Reuse Distance D = ',num2str(D)]);
+
+legend('Cells');
