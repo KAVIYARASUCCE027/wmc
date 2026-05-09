@@ -1,0 +1,26 @@
+clc;
+clear;
+close all;
+states = {'Idle', 'Channel Request', 'Authentication', ...
+ 'Call Setup', 'Call Accepted'};
+current_state = 'Idle';
+for i = 1:5
+ disp(['Current State: ', current_state]);
+ current_state = transition(current_state);
+end
+disp(['Current State: ', current_state, ' - Call setup completed.']);
+function next_state = transition(current_state)
+ switch current_state
+ case 'Idle'
+ next_state = 'Channel Request';
+ case 'Channel Request'
+ next_state = 'Authentication';
+ case 'Authentication'
+ next_state = 'Call Setup';
+ case 'Call Setup'
+ next_state = 'Call Accepted';
+ otherwise
+ disp('Call setup process completed.');
+ next_state = current_state;
+ end
+end
